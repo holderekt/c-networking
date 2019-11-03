@@ -42,8 +42,8 @@ operation readOperation(){
     temp = tolower(temp);
     op.op = chartoint(temp);
     
-    op.a = readInt("A: ");
-    op.b = readInt("B: ");
+    op.a = readInt("Operando 1: ");
+    op.b = readInt("Operando 2: ");
 
     return op;
 }

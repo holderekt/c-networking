@@ -6,50 +6,60 @@
 
 int main(char argc, char *argv[]) {
 
-    // Socket API initialization
-
+    // Inizializzazone Socket API (WIN32)
     if(initSocketAPI() != 0){
-        printMessage("Something went wrong during WSA startup", ERROR_M);
+        printMessage("Impossibile inizializzare WINSOCK", ERROR_M);
         return ERROR;
     }else{
-        printMessage("Socket API initialized", SUCCESS_M);
+        printMessage("Socket API inizializzata", SUCCESS_M);
     }
 
     int client_socket;
     struct sockaddr_in server_address;
+    char* server_saddr;
+    int server_port;
 
-    if((client_socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0){
-        printMessage("Socket creation", ERROR_M);
+    if((client_socket = createSocket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0){
+        printMessage("Impossibile creare il socket client", ERROR_M);
         return ERROR;
     }
 
-    char* server_ip = argv[1];
-    int server_port = atoi(argv[2]);
+    // Argomenti in input 
+    if(argc == 3){
+        server_saddr = argv[1];         // Indirizzo server
+        server_port = atoi(argv[2]);    // Porta server
+    }else{
+        printMessage("Argomenti in input non validi", ERROR_M);
+        closeSocket(client_socket);
+        return ERROR;
+    }
+    
+    // Creazione address server 
+    server_address = createAddress(AF_INET, server_saddr, server_port);
 
-    printf("%s :: %d\n", server_ip, server_port);
-
-    memset(&server_address, 0, sizeof(server_address));
-    server_address.sin_family = AF_INET;
-    server_address.sin_addr.s_addr = inet_addr(server_ip);
-    server_address.sin_port = htons(server_port);
-
-    if(connect(client_socket, (struct sockaddr*)&server_address, sizeof(server_address)) < 0){
+    // Connessione client al server
+    if((connectSocket(client_socket, server_address)) < 0){
         printMessage("During server connection", ERROR_M);
+        closeSocket(client_socket);
         return ERROR;
     }
 
-
+    // Ricezione messaggio connessione avvenuta
     char *message = receiveMessage(client_socket);
     printMessage(message, MESSAGE_M);
 
-    printMessage("Input operation data...", INFO_M);
 
+    // Lettura dati operazione
+    printMessage("Inserimento dati operazione...", INFO_M);
     operation op = readOperation();
     
+
+    // Invio dati operazione 
     if(sendOperation(client_socket, op) == ERROR){
         printMessage("Errore nell'invio dati", WARNING_M);
     }
 
+    // Ricezione messaggio elaborazione operazione
     char *operation_result = receiveMessage(client_socket);
     if(strcmp(operation_result, TERMINATION_MESSAGE) == 0){
         printMessage("Chiusura connessione", INFO_M);

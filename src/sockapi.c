@@ -34,7 +34,6 @@ struct sockaddr_in createAddress(int family, char* ip, short int port){
     memset(&address, 0, sizeof(address));
     address.sin_family = family;
     address.sin_addr.s_addr = inet_addr(ip);
-    address.sin_addr.s_addr = htonl(INADDR_ANY);
     address.sin_port = htons(port);
     return address;
 }
@@ -112,7 +111,7 @@ char* generateOperationMessage(operation op){
             }
             break;
         case 'm':
-            sprintf(buffer, "Risultato della moltiplicatione %d + %d = %f\0", op.a, op.b, (double)(op.a * op.b));
+            sprintf(buffer, "Risultato della moltiplicazione %d + %d = %f\0", op.a, op.b, (double)(op.a * op.b));
             break;
 
         default:
@@ -122,4 +121,8 @@ char* generateOperationMessage(operation op){
     char* result_message = (char *) malloc(sizeof(char) * strlen(buffer));
     strcpy(result_message, buffer);
     return result_message;
+}
+
+int connectSocket(int socket, struct sockaddr_in address){
+    return connect(socket, (struct sockaddr*)&address, sizeof(address));
 }

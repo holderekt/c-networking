@@ -8,7 +8,7 @@
 
 int main(char argc, char *argv[]) {
 
-    // Socket API initialization
+    // Inizializzazone Socket API (WIN32)
     if(initSocketAPI() != SUCCESS){
         printMessage("Something went wrong during WSA startup", ERROR_M);
         return ERROR;
@@ -20,7 +20,7 @@ int main(char argc, char *argv[]) {
     struct sockaddr_in server_address, client_address;
     int server_port  = DEFAULT_PORT;
 
-    // Port number from program arguments
+    // Gestione argomenti in input
     if(argc == 2){
         server_port = atoi(argv[1]);
     }else if (argc > 2){
@@ -28,29 +28,26 @@ int main(char argc, char *argv[]) {
         return ERROR;
     }
 
-    // Socket creation and configuration
+    // Creazione e configurazione socket server
     if((server_socket = createSocket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) == ERROR){
         printMessage("Creazione e configurazione socket", ERROR_M);
         return ERROR;
     }
 
-    // Server address creation
+    // Creazione address del server
     server_address = createAddress(AF_INET, LOCALHOST, server_port);
 
-    // Socket Bind
+    // Binding socket all'address specificato
     if(bindSocket(server_socket, server_address) < 0){
-        printMessage("Cannot bind socket to given address", ERROR_M);
+        printMessage("Impossibile eseguire bind all'indirizzo specificato", ERROR_M);
         closeSocket(server_socket);
         return ERROR;
     }else{
-        printMessage("Bind socket to address", SUCCESS_M);
+        printMessage("Bind eseguito", SUCCESS_M);
 
     }
 
-    struct sockaddr_in aaa;
-    int size = sizeof(aaa);
-
-    // Socket on listen
+    // Socket in ascolto
     if(listen(server_socket, DEFAULT_QLEN ) < 0){
         printMessage("Listen", ERROR_M);
         closeSocket(server_socket);
@@ -68,14 +65,17 @@ int main(char argc, char *argv[]) {
     printMessage("Waiting connection", INFO_M);
     puts("");
 
+    // Main loop
     while(true){
        
+        // Nuova connessione client
         if((client_socket = acceptClientSocket(server_socket, client_address)) < 0){
             printMessage("Accepting client", ERROR_M);
             closeSocket(server_socket);
             return ERROR;
         }
-
+        
+        // Invio messaggio inizo connessione
         char message[DEFAULT_BUFFER] = "Connessione Avvenuta";
 
         if(sendData(client_socket, message, strlen(message)) == ERROR){
@@ -84,15 +84,14 @@ int main(char argc, char *argv[]) {
             printMessage("Message sent", SUCCESS_M);
         }
 
-
+        // Ricezione dati operazione 
         operation op;
-
         if(receiveOperation(client_socket, &op) != SUCCESS){
             printMessage("Ricezione operazione fallita", WARNING_M);
             closeSocket(client_socket);
             continue;
         }else{
-            
+            // Invio dati elaborazione operazione
             char* operation_result = generateOperationMessage(op);
 
             if(sendData(client_socket, operation_result, strlen(operation_result)) == ERROR){
@@ -102,10 +101,10 @@ int main(char argc, char *argv[]) {
             }
         }
 
-    
         closeSocket(client_socket);
     }
 
+    closeSocket(server_socket);
     return SUCCESS;
 }
 
