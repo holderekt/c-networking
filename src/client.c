@@ -39,7 +39,7 @@ int main(char argc, char *argv[]) {
 
     // Connessione client al server
     if((connectSocket(client_socket, server_address)) < 0){
-        printMessage("During server connection", ERROR_M);
+        printMessage("Impossibile connettersi al server", ERROR_M);
         closeSocket(client_socket);
         return ERROR;
     }

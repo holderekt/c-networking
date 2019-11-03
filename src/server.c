@@ -24,7 +24,7 @@ int main(char argc, char *argv[]) {
     if(argc == 2){
         server_port = atoi(argv[1]);
     }else if (argc > 2){
-        printMessage("Only one argument is accepted", ERROR_M);
+        printMessage("Argomenti in input non validi", ERROR_M);
         return ERROR;
     }
 
@@ -49,11 +49,11 @@ int main(char argc, char *argv[]) {
 
     // Socket in ascolto
     if(listen(server_socket, DEFAULT_QLEN ) < 0){
-        printMessage("Listen", ERROR_M);
+        printMessage("Impossibile impostare il server in ascolto", ERROR_M);
         closeSocket(server_socket);
         return ERROR;
     }else{
-        char message[100] = "Socket listening on port ";
+        char message[100] = "Server in ascolto sulla porta ";
         char port[6];
         sprintf(port, "%d", server_port);
         strcat(message, port);
@@ -61,8 +61,8 @@ int main(char argc, char *argv[]) {
     }
 
     puts("");
-    printMessage("Server now active", INFO_M);
-    printMessage("Waiting connection", INFO_M);
+    printMessage("Server ora attivo", INFO_M);
+    printMessage("Attendo una connessione...", INFO_M);
     puts("");
 
     // Main loop
@@ -70,7 +70,7 @@ int main(char argc, char *argv[]) {
        
         // Nuova connessione client
         if((client_socket = acceptClientSocket(server_socket, client_address)) < 0){
-            printMessage("Accepting client", ERROR_M);
+            printMessage("Impossibile connettersi al client", ERROR_M);
             closeSocket(server_socket);
             return ERROR;
         }
@@ -79,9 +79,9 @@ int main(char argc, char *argv[]) {
         char message[DEFAULT_BUFFER] = "Connessione Avvenuta";
 
         if(sendData(client_socket, message, strlen(message)) == ERROR){
-            printMessage("Message sent with errors", WARNING_M);
+            printMessage("Messaggio inviato con errori", WARNING_M);
         }else{
-            printMessage("Message sent", SUCCESS_M);
+            printMessage("Messaggio inviato", SUCCESS_M);
         }
 
         // Ricezione dati operazione 
@@ -95,12 +95,14 @@ int main(char argc, char *argv[]) {
             char* operation_result = generateOperationMessage(op);
 
             if(sendData(client_socket, operation_result, strlen(operation_result)) == ERROR){
-                printMessage("Message sent with errors", WARNING_M);
+                printMessage("Messaggio inviato con errori", WARNING_M);
             }else{
-                printMessage("Message sent", SUCCESS_M);
+                printMessage("Messaggio inviato", SUCCESS_M);
             }
         }
 
+        printMessage("Chiusura connessione client", INFO_M);
+        puts("");
         closeSocket(client_socket);
     }
 

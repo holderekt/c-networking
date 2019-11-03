@@ -101,7 +101,7 @@ char* generateOperationMessage(operation op){
             sprintf(buffer, "Risultato della addizione %d + %d = %f\0", op.a, op.b, (double)(op.a + op.b));
             break;
         case 's':
-            sprintf(buffer, "Risultato della sottrazione%d - %d = %f\0", op.a, op.b, (double)(op.a - op.b));
+            sprintf(buffer, "Risultato della sottrazione %d - %d = %f\0", op.a, op.b, (double)(op.a - op.b));
             break;
         case 'd':
             if(op.b == 0){
