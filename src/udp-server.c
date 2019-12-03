@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <netdb.h>
- #include <unistd.h>
+#include <unistd.h>
 #include "../include/sockapi.h"
 #include "../include/util.h"
 
@@ -18,10 +18,11 @@ int main(char argc, char *argv[]) {
         printMessage("Socket API initialized", SUCCESS_M);
     }
 
+    // Risoluzione IP Server
     string hostname = createString(1024);
     gethostname(hostname, 1024);
     struct hostent* myself = gethostbyname(hostname);
-    struct in_addr* aaa = (struct in_addr*)myself->h_addr_list[0];
+    struct in_addr* myaddress = (struct in_addr*)myself->h_addr_list[0];
 
     int server_socket, client_socket;
     struct sockaddr_in server_address, client_address;
@@ -42,7 +43,7 @@ int main(char argc, char *argv[]) {
     }
 
     // Creazione address del server
-    server_address = createAddress_inaddr(AF_INET, aaa, server_port);
+    server_address = createAddress_inaddr(AF_INET, myaddress, server_port);
 
     // Binding socket all'address specificato
     if(bindSocket(server_socket, server_address) < 0){
@@ -60,32 +61,49 @@ int main(char argc, char *argv[]) {
     puts("");
 
     // Main loop
-    unsigned int clientLength;
-    unsigned long int messageSize;
-    string test = createString(1024);
+    unsigned int address_len;
+    unsigned long int messagesize;
+    
 
     while(true){
-        clientLength = sizeof(client_address);
-        messageSize = recvfrom(server_socket, test, 1024, 0, (struct sockaddr*)&client_address, &clientLength);
-        if(messageSize > 0){
-            printMessage(test, INFO_M);
-            struct hostent* mario = gethostbyaddr((char*)&client_address.sin_addr, 4, AF_INET);
-            struct in_addr* server_in_address = (struct in_addr*) mario->h_addr_list[0];
-            printf("Mario: %s ___ %s -- %s\n", mario->h_name, inet_ntoa(*server_in_address), test);
-            sendto(server_socket, "OK\0", 3, 0, (struct sockaddr*)&client_address, sizeof(client_address));
-        } 
+        // Ricezione messaggio iniziale
+        string recvmessage = createString(1024);
+        address_len = sizeof(client_address);
+        messagesize = recvfrom(server_socket, recvmessage, 1024, 0, (struct sockaddr*)&client_address, &address_len);
 
-        char c = ' ';
+        if(messagesize < 0){
+            printMessage("Errore ricezione dati", ERROR_M);
+            return ERROR;    
+        }
+
+        // Visualizzazione informazioni CLIENT
+        printMessage(recvmessage, INFO_M);
+        struct hostent* mario = gethostbyaddr((char*)&client_address.sin_addr, 4, AF_INET);
+        struct in_addr* server_in_address = (struct in_addr*) mario->h_addr_list[0];
+        string outmessage = createString(DEFAULT_BUFFER);
+        sprintf(outmessage, "Client Name    > %s", mario->h_name);
+        printMessage(outmessage, INFO_M);
+        sprintf(outmessage, "Client Address > %s", inet_ntoa(*server_in_address));
+        printMessage(outmessage, INFO_M);
+
+        // Invio conferma ricezione client
+        sendto(server_socket, "OK\0", 3, 0, (struct sockaddr*)&client_address, sizeof(client_address));
+
+        // Ricezione vocali dal client
+        uint32_t letter = ' ';
         do{
-        
-            messageSize = recvfrom(server_socket, &c, sizeof(char), 0, (struct sockaddr*)&client_address, &clientLength);
-            if(messageSize > 0){
-                if(c != '\0'){
-                    c = toupper(c);
-                    sendto(server_socket, &c, sizeof(char), 0, (struct sockaddr*)&client_address, sizeof(client_address));
+            messagesize = recvfrom(server_socket, &letter, sizeof(char), 0, (struct sockaddr*)&client_address, &address_len);
+            if(messagesize > 0){
+                // Invio vocale maiuscola client
+                if(letter != '\0'){
+                    letter = toupper(letter);
+                    sendto(server_socket, &letter, sizeof(char), 0, (struct sockaddr*)&client_address, sizeof(client_address));
                 }
             }
-        }while(c != '\0');
+        }while(letter != '\0');
+
+        printMessage(TERMINATION_MESSAGE, INFO_M);
+        puts("");
     }
        
     

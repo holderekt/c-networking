@@ -20,7 +20,8 @@ typedef enum MESSAGE_TYPE{
     ERROR_M     = 1,      // Errore non fatale
     WARNING_M   = 2,      // Errore che implica la terminazione del programma
     INFO_M      = 3,      // Informazione generica 
-    MESSAGE_M   = 4       // Messaggio rivecuto dal client / server
+    MESSAGE_M   = 4,      // Messaggio rivecuto dal client / server
+    INPUT_M     = 5       // Input utente
 }MESSAGE_TYPE;
 
 typedef struct operation{
@@ -30,10 +31,13 @@ typedef struct operation{
 }operation;
 
 extern const string BYTE_PRINT_FORMAT[2];
-extern const string MESSAGES[5];
+extern const string MESSAGES[6];
 
 /* Visualizzazione messaggi a schermo */
 void printMessage(string message, MESSAGE_TYPE type);
+
+/* Visualizzazione tipologia messaggio a schermo */
+void printType(MESSAGE_TYPE type);
 
 /* Converte il char in ingresso in un integer */
 int chartoint(char c);

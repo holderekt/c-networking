@@ -35,6 +35,7 @@ int main(char argc, char *argv[]) {
         return ERROR;
     }
 
+    // Ricerco indirizzo server da hostname
     struct hostent* server_hostent = gethostbyname(server_saddr);
     struct in_addr* server_in_address;
 
@@ -43,6 +44,9 @@ int main(char argc, char *argv[]) {
         server_in_address = (struct in_addr*) server_hostent->h_addr_list[0];
 
         if(server_in_address != NULL){
+
+            // Visualizzo informazioni server
+
             string message = createString(1024);
             strcpy(message, "Connessione al server: ");
             strcat(message, server_hostent->h_name);
@@ -63,13 +67,14 @@ int main(char argc, char *argv[]) {
     // Creazione address server 
     server_address = createAddress_inaddr(AF_INET, server_in_address, server_port);
 
-
+    // Invio messaggio inizio connessione
     sendto(client_socket, INITIALIZATION_MESSAGE, DEFAULT_BUFFER, 0, (struct sockaddr*)&server_address, sizeof(server_address));
     
+    // Ricezione risposta server
     string recvmessage = createString(DEFAULT_BUFFER);
     unsigned long int messagesize;
-    unsigned int recvsize = sizeof(server_address);
-    messagesize = recvfrom(client_socket, recvmessage, DEFAULT_BUFFER, 0, (struct sockaddr*)&server_address, &recvsize);
+    unsigned int address_len = sizeof(server_address);
+    messagesize = recvfrom(client_socket, recvmessage, DEFAULT_BUFFER, 0, (struct sockaddr*)&server_address, &address_len);
     
     if(messagesize > 0){
         printMessage(recvmessage, MESSAGE_M);
@@ -78,32 +83,39 @@ int main(char argc, char *argv[]) {
         return ERROR;
     }
 
+    // Lettura stringa da tastiera 
+    printType(INPUT_M);
     string message = readLine(1024);
-    int count = 0;
+    int vowelcount = 0;
     for(int i=0; i!= strlen(message); i++){
+        // Conteggio vocali e invio vocale al server
         if(isVowel(message[i])){
             sendto(client_socket, &(message[i]), sizeof(char), 0, (struct sockaddr*)&server_address, sizeof(server_address));
-            count++;
+            vowelcount++;
         }
     }
-    char c = '\0';
-    sendto(client_socket, &c, sizeof(c) , 0, (struct sockaddr*)&server_address, sizeof(server_address));
 
-    printf("aamama %d\n", count);
+    // Invio carattere terminazione al server
+    char sendstop = '\0';
+    sendto(client_socket, &sendstop, sizeof(sendstop) , 0, (struct sockaddr*)&server_address, sizeof(server_address));
+
+    // Ricezione vocali dal server e stampa
     uint32_t letter;
+    string vowelmessage = createString(vowelcount + 1);
+    strcpy(vowelmessage, "");
 
-    for(int i=0; i!=count; i++){
-        messagesize = recvfrom(client_socket, &letter, sizeof(uint32_t), 0, (struct sockaddr*)&server_address, &recvsize);
-    
+    for(int i=0; i!=vowelcount; i++){
+        messagesize = recvfrom(client_socket, &letter, sizeof(uint32_t), 0, (struct sockaddr*)&server_address, &address_len);
         if(messagesize > 0){
-            printf("%c ", letter, i);
+            vowelmessage[i] = letter;
         }else{
             printMessage("Nessun messaggio ricevuto", ERROR_M);
             return ERROR;
         }
     }
-
-
+    
+    vowelmessage[vowelcount] = '\0';
+    printMessage(vowelmessage, MESSAGE_M);
 
     printMessage("Chiusura socket", INFO_M);
     closeSocket(client_socket);

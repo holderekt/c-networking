@@ -1,11 +1,12 @@
 #include "../include/util.h"
 
-const string MESSAGES[5] = {
+const string MESSAGES[6] = {
     "[ SUCCESS]",
     "[   ERROR]",
     "[ WARNING]",
     "[    INFO]",
     "[ MESSAGE]",
+    "[   INPUT]"
 };
 
 string createString(unsigned long size){
@@ -14,6 +15,10 @@ string createString(unsigned long size){
 
 void printMessage(string message, MESSAGE_TYPE type){    
     printf("%s: %s\n", MESSAGES[type], message);
+}
+
+void printType(MESSAGE_TYPE type){
+    printf("%s: ", MESSAGES[type]);
 }
 
 
