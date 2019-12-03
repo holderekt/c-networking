@@ -38,7 +38,7 @@ operation readOperation(){
 char readChar(string message){
     char buffer[512];
 
-    do{
+    do{h
         printf("%s", message);
         fgets(buffer, 512, stdin);
     }while((strlen(buffer) - 1) > 1 || (strlen(buffer) - 1) <= 0);
