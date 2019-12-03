@@ -1,30 +1,17 @@
 #include "../include/util.h"
 
-void printMessage(char* message, MESSAGE_TYPE type){
-    char type_message[20];
+const string MESSAGES[5] = {
+    "[ SUCCESS]",
+    "[   ERROR]",
+    "[ WARNING]",
+    "[    INFO]",
+    "[ MESSAGE]",
+};
 
-    switch (type)
-    {
-    case WARNING_M:
-        strcpy(type_message,"[ WARNING]");
-        break;
-    case ERROR_M:
-        strcpy(type_message,"[   ERROR]");
-        break;
-    case SUCCESS_M:
-        strcpy(type_message,"[ SUCCESS]");
-        break;
-    case INFO_M:
-        strcpy(type_message,"[    INFO]");
-        break;
-    case MESSAGE_M:
-        strcpy(type_message,"[ MESSAGE]");
-        break;
-    }
-
-    
-    printf("%s: %s\n", type_message, message);
+void printMessage(string message, MESSAGE_TYPE type){    
+    printf("%s: %s\n", MESSAGES[type], message);
 }
+
 
 int chartoint(char c){
     return c - '0';
@@ -48,7 +35,7 @@ operation readOperation(){
     return op;
 }
 
-char readChar(char* message){
+char readChar(string message){
     char buffer[512];
 
     do{
@@ -59,7 +46,7 @@ char readChar(char* message){
     return buffer[0];
 }
 
-int readInt(char* message){
+int readInt(string message){
     int number;
     printf("%s", message);
     scanf("%d", &number);
