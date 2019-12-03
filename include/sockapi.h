@@ -19,6 +19,7 @@
 #define DEFAULT_QLEN 6
 #define DEFAULT_BUFFER 512
 #define TERMINATION_MESSAGE "TERMINE PROCESSO CLIENT\0"
+#define INITIALIZATION_MESSAGE "INIZIO PROCESSO CLIENT\0"
 
 /* Startup WSA (WIN32) */
 int initSocketAPI();
@@ -33,8 +34,11 @@ int bindSocket(int socket, struct sockaddr_in address);
 ERROR altrimenti */
 int acceptClientSocket(int server_socket, struct sockaddr_in client_address);
 
-/* Creazione struct indirizzo */
+/* Creazione struct indirizzo da stringa indirizzo*/
 struct sockaddr_in createAddress(int family, char* ip, short int port);
+
+/* Creazione struct indirizzo da in_addr */
+struct sockaddr_in createAddress_inaddr(int family, struct in_addr* in_address, short int port);
 
 /* Creazione e configurazione socket. Socket impostato per il 
 riutilizzo dell'address locale. Ritorna il socket in caso di successo
@@ -62,5 +66,9 @@ char *generateOperationMessage(operation operation);
 
 /* Connessione socket all'address specificato */
 int connectSocket(int socket, struct sockaddr_in address);
+
+
+
+
 
 #endif

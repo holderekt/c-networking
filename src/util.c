@@ -8,6 +8,10 @@ const string MESSAGES[5] = {
     "[ MESSAGE]",
 };
 
+string createString(unsigned long size){
+    return (string) malloc(sizeof(char) * size);
+}
+
 void printMessage(string message, MESSAGE_TYPE type){    
     printf("%s: %s\n", MESSAGES[type], message);
 }
@@ -38,7 +42,7 @@ operation readOperation(){
 char readChar(string message){
     char buffer[512];
 
-    do{h
+    do{
         printf("%s", message);
         fgets(buffer, 512, stdin);
     }while((strlen(buffer) - 1) > 1 || (strlen(buffer) - 1) <= 0);
@@ -53,3 +57,18 @@ int readInt(string message){
     return number;
 }
 
+string readLine(unsigned long int size){
+    string line = createString(size);
+    fgets(line, size, stdin);
+    line[strlen(line)] = '\0';
+    return line;
+}
+
+int isVowel(char c){
+    c = tolower(c);
+    if(c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u' ){
+        return true;
+    }
+
+    return false;
+}

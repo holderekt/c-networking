@@ -53,6 +53,12 @@ string createString(unsigned long size);
 /* Lettura dallo stdin della struct operation */
 operation readOperation();
 
+/* Lettura stringa da tastiera */
+string readLine(unsigned long int size);
+
+/* True se il carattere è una vocale */
+int isVowel(char c);
+
 #endif
 
 

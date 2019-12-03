@@ -38,6 +38,15 @@ struct sockaddr_in createAddress(int family, char* ip, short int port){
     return address;
 }
 
+struct sockaddr_in createAddress_inaddr(int family, struct in_addr* in_address, short int port){
+    struct sockaddr_in address;
+    memset(&address, 0, sizeof(address));
+    address.sin_family = family;
+    address.sin_addr = *in_address;
+    address.sin_port = htons(port);
+    return address;
+}
+
 int createSocket(int domain, int type, int protocol){
     int new_socket = socket(domain, type, protocol);
     int true_value = 1;
@@ -126,3 +135,4 @@ char* generateOperationMessage(operation op){
 int connectSocket(int socket, struct sockaddr_in address){
     return connect(socket, (struct sockaddr*)&address, sizeof(address));
 }
+
